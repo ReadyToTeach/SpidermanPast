@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spider-Man: Rooftop Security System</title>
+<style>
+  :root {
+    --cyan: #27caff;
+    --cyan-glow: rgba(39, 202, 255, .55);
+    --metal: #252c30;
+    --panel: #11191d;
+    --silver: #bfc8cb;
+    --white: #f4fbff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--white);
+    background:
+      linear-gradient(rgba(4, 9, 13, .50), rgba(4, 9, 13, .68)),
+      url("https://i.postimg.cc/zB8qW7dW/FON-(16).png") center center / cover fixed no-repeat,
+      #101820;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+  }
+  button { font: inherit; }
+  .game {
+    width: min(100%, 1000px);
+    display: grid;
+    grid-template-columns: minmax(280px, 390px) minmax(280px, 1fr);
+    gap: clamp(22px, 5vw, 58px);
+    align-items: center;
+  }
+  .intro { text-align: center; text-shadow: 0 2px 8px #000; }
+  .intro h1 {
+    margin:  -60px 0 10px;
+    font-size: clamp(26px, 4vw, 42px);
+    line-height: 1.05;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #f4fbff;
+  }
+  .intro p { margin: 0 auto 18px; max-width: 360px; line-height: 1.5; font-size: 16px; }
+  .progress { color: #8fe5ff; font-weight: 700; letter-spacing: 1px; }
+  .lock-wrap { display: flex; justify-content: center; perspective: 900px; margin-top: 80px; }
+  .lock {
+    width: min(100%, 350px);
+    position: relative;
+    padding: 0 15px 18px;
+    border-radius: 35px;
+    background: linear-gradient(125deg, #6c777b 0%, #20282c 18%, #141b1f 58%, #596267 100%);
+    border: 3px solid #0b1013;
+    box-shadow: inset 0 0 0 3px #aab4b8, inset 0 0 0 7px #252d31,
+                0 22px 45px rgba(0,0,0,.65), 0 0 22px rgba(0,0,0,.5);
+    transform: rotateY(-3deg);
+  }
+  .shackle {
+    width: 48%; height: 112px; margin: -76px auto 0;
+    border: 17px solid #9da8ac;
+    border-bottom: 0; border-radius: 90px 90px 0 0;
+    position: relative; z-index: -1;
+    background: transparent;
+    box-shadow: inset 4px 2px 4px #e8edef, inset -4px 0 4px #343c40,
+                4px 0 2px rgba(0,0,0,.5), -3px 0 2px rgba(0,0,0,.4);
+  }
+  .shackle::after {
+    content: ""; position: absolute; inset: 0;
+    border: 2px solid rgba(255,255,255,.3); border-bottom: 0;
+    border-radius: inherit;
+  }
+  .lock-face {
+    position: relative; margin-top: -2px; padding: 18px 16px 16px;
+    border-radius: 26px;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,.018) 0 2px, transparent 2px 5px),
+      linear-gradient(145deg, #303a3f, #10171b 60%, #273136);
+    border: 2px solid #d4dcdf;
+    box-shadow: inset 0 0 0 3px #4b555a, inset 0 0 18px #000;
+  }
+  .light {
+    width: 82px; height: 12px; margin: 0 auto 17px;
+    border-radius: 12px; border: 2px solid #057eae;
+    background: #9df4ff;
+    box-shadow: 0 0 5px 2px var(--cyan), 0 0 16px 5px var(--cyan-glow);
+  }
+  .display {
+    min-height: 38px; margin: 0 auto 13px; padding: 7px 8px;
+    width: 100%; border-radius: 8px; text-align: center;
+    background: #071014; border: 1px solid #506067;
+    color: var(--cyan); font-weight: 800; letter-spacing: 7px;
+    font-size: 21px; text-shadow: 0 0 8px var(--cyan);
+    box-shadow: inset 0 2px 8px #000;
+  }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .key {
+    min-height: 61px; border-radius: 13px; cursor: pointer;
+    color: #f5fcff; font-size: 31px; font-weight: 800;
+    background: linear-gradient(145deg, #303b40, #0b1115 70%);
+    border: 2px solid #070b0d;
+    box-shadow: inset 0 0 0 2px #566167, inset 0 2px 4px #889196,
+                0 4px 0 #050809, 0 5px 7px rgba(0,0,0,.5);
+    text-shadow: 0 0 8px var(--cyan), 0 0 2px var(--cyan);
+    transition: transform .12s, box-shadow .12s, background .12s;
+  }
+  .key:hover, .key:focus-visible {
+    outline: none; color: white;
+    background: linear-gradient(145deg, #3c5058, #10232b);
+    box-shadow: inset 0 0 0 2px #8bdfff, 0 0 12px var(--cyan-glow), 0 3px 0 #050809;
+  }
+  .key:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px #566167, 0 1px 0 #050809; }
+  .key.solved { color: #a8ffdc; text-shadow: 0 0 8px #4dffb2; border-color: #1b6c53; }
+  .key.special { font-size: 26px; }
+  .task-panel {
+    min-height: 360px; padding: clamp(20px, 3vw, 30px);
+    border: 1px solid rgba(137,222,255,.55); border-radius: 20px;
+    background: rgba(7, 15, 20, .91);
+    box-shadow: 0 16px 40px rgba(0,0,0,.48), inset 0 0 25px rgba(39,202,255,.06);
+    backdrop-filter: blur(7px);
+  }
+  .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+  .task-panel h2 { margin: 8px 0 14px; font-size: clamp(22px, 3vw, 29px); }
+  .task-panel p { line-height: 1.55; }
+  .question { font-size: 18px; font-weight: 700; }
+  .answers { display: grid; gap: 9px; margin: 18px 0; }
+  .answer {
+    width: 100%; padding: 12px 14px; text-align: left; cursor: pointer;
+    border-radius: 10px; color: #f4fbff; background: #18252c;
+    border: 1px solid #3b5662; transition: .15s;
+  }
+  .answer:hover { border-color: var(--cyan); background: #203640; }
+  .answer.selected { border-color: var(--cyan); background: #103d50; box-shadow: 0 0 0 1px var(--cyan); }
+  .answer.correct { border-color: #4be0a0; background: #123d31; }
+  .answer.wrong { border-color: #ff8c8c; background: #49272a; }
+  .fill-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; line-height: 2; }
+  .fill-input {
+    min-width: 120px; max-width: 100%; padding: 9px 10px; color: white;
+    background: #071014; border: 1px solid #4b7485; border-radius: 8px; font-size: 16px;
+  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .action {
+    padding: 11px 17px; border-radius: 9px; cursor: pointer; font-weight: 800;
+    border: 1px solid #46cfff; color: #071014; background: var(--cyan);
+  }
+  .action.secondary { color: #d9f7ff; background: transparent; border-color: #54727d; }
+  .feedback { min-height: 26px; margin: 12px 0 0; font-weight: 700; }
+  .feedback.good { color: #73ffc2; }
+  .feedback.bad { color: #ffadad; }
+  .hint { color: #aabdc5; font-size: 13px; }
+  .success { text-align: center; }
+  .success .big-code { font-size: clamp(54px, 10vw, 82px); letter-spacing: 13px; color: var(--cyan); font-weight: 900; text-shadow: 0 0 18px var(--cyan-glow); margin: 18px 0; }
+  .success .seal { font-size: 48px; }
+  .hidden { display: none !important; }
+  @media (max-width: 720px) {
+    body { padding: 22px 14px; align-items: flex-start; }
+    .game { grid-template-columns: 1fr; gap: 25px; max-width: 440px; }
+    .intro p { margin-bottom: 10px; }
+    .lock { width: min(82%, 330px); }
+    .shackle { height: 88px; margin-top: -61px; border-width: 14px; }
+    .key { min-height: 54px; }
+    .task-panel { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+<main class="game">
+  <section>
+    <div class="intro">
+  <div class="progress" id="progress">TASKS SOLVED: 0 / 10</div>
+</div>
+    <div class="lock-wrap" aria-label="Digital combination padlock">
+      <div class="lock">
+        <div class="shackle"></div>
+        <div class="lock-face">
+          <div class="light"></div>
+          <div class="display" id="display" aria-live="polite">----</div>
+          <div class="keypad" id="keypad">
+            <button class="key" data-key="1">1</button>
+            <button class="key" data-key="2">2</button>
+            <button class="key" data-key="3">3</button>
+            <button class="key" data-key="4">4</button>
+            <button class="key" data-key="5">5</button>
+            <button class="key" data-key="6">6</button>
+            <button class="key" data-key="7">7</button>
+            <button class="key" data-key="8">8</button>
+            <button class="key" data-key="9">9</button>
+            <button class="key special" data-key="back" aria-label="Clear code">←</button>
+            <button class="key" data-key="0">0</button>
+            <button class="key special" data-key="enter" aria-label="Enter code">➜</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="task-panel" id="taskPanel" aria-live="polite">
+    <div id="welcome">
+      <div class="eyebrow">Rooftop security system</div>
+      <h2>Unlock the door!</h2>
+      <p>
+        Spider-Man has reached the rooftop of Building 24.<br>
+        The Green Goblin is hiding somewhere inside the building,
+        and the stolen Christmas Tree is there too.<br><br>
+        The rooftop door is locked. Solve all 10 grammar challenges
+        to unlock it. Be careful — people are still inside!
+      </p>
+    </div>
+    <div id="taskArea" class="hidden"></div>
+    <div id="finalArea" class="success hidden">
+      <div class="seal">🔓</div>
+      <div class="eyebrow">Security system unlocked!</div>
+      <h2>The door is open!</h2>
+      <p>
+        Great job! You have solved all 10 grammar challenges.
+        Spider-Man can finally get inside and look for the Green Goblin
+        and the stolen Christmas Tree. Remember this code — you'll need it later!
+      </p>
+      <div class="big-code">6217</div>
+      <button class="action secondary" id="reviewBtn">Review a task</button>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const tasks = {
+    "1": {
+      type: "mc",
+      question: "People ___ (watch) TV when they heard a strange noise.",
+      options: ["watched", "were watching", "was watching"],
+      answer: 1,
+      explain: "Use Past Continuous for an action in progress when another action happened."
+    },
+    "2": {
+      type: "fill",
+      before: "Spider-Man",
+      after: "(climb) the fire escape when he noticed a light in one of the windows.",
+      answer: ["was climbing"],
+      explain: "Use Past Continuous for the action in progress."
+    },
+    "3": {
+      type: "mc",
+      question: "While Mary Jane was waiting for a taxi, she ____ (see) a green flash in the sky.",
+      options: ["saw", "seen", "was seeing"],
+      answer: 0,
+      explain: "Use Past Simple for stative verbs."
+    },
+    "4": {
+      type: "fill",
+      before: "While the police officers were talking outside, the lights suddenly",
+      after: "(go) out.",
+      answer: ["went"],
+      explain: "Use Past Simple for a completed action in the past.'Go'is irregular: go - went - gone."
+    },
+    "5": {
+      type: "mc",
+      question: "While Spider-Man ___ (jump) across the rooftops, the Green Goblin ___ (prepare) his secret laboratory.",
+      options: [ "was jumping / was preparing", "jumped / prepared", "was jumping / prepared"],
+      answer: 0,
+      explain: "Both actions were happening at the same time in the past, so we use Past Continuous for both."
+    },
+    "6": {
+      type: "fill",
+      before: "What",
+      after: "______ (Mary Jane / do) while Spider-Man was looking for the Christmas Tree?",
+      answer: ["was Mary Jane doing"],
+      explain: "Use Past Continuous for the action in progress."
+    },
+    "7": {
+      type: "mc",
+      question: "__ people  ___ when Spider-Man was climbing the building?",
+      options: ["Did/sleep", "Were / sleeping", "Was/sleeping"],
+      answer: 1,
+      explain: "Use Past Continuous for the action in progress."
+    },
+    "8": {
+      type: "fill",
+      before: "The Goblin",
+      after: "(drop) a small device while he was running upstairs.",
+      answer: ["dropped"],
+      explain: "Use Past Simple for the shorter completed action. Add -ed to this regular verb and double the consonant."
+    },
+    "9": {
+      type: "mc",
+      question: "Spider-Man ___ (not notice) the trap because he was looking at the ceiling.",
+      options: ["didn't noticed", "wasn't noticing", "didn't notice"],
+      answer: 2,
+      explain: "Use Past Simple in the negative because 'notice' describes a moment of perception, not a continuous action. After 'didn't', always use the base form of the verb."
+    },
+    "0": {
+      type: "fill",
+      before: "When Spider-Man suddenly appeared, the Green Goblin",
+      after: "(not / run) away. He was standing next to the stolen Christmas Tree.",
+      answer: ["wasn't running"],
+      explain: "Use Past Continuous to describe an action in progress at a particular moment in the past."
+    }
+  };
+  const solved = new Set();
+  const keypad = document.getElementById("keypad");
+  const taskArea = document.getElementById("taskArea");
+  const welcome = document.getElementById("welcome");
+  const finalArea = document.getElementById("finalArea");
+  const display = document.getElementById("display");
+  const progress = document.getElementById("progress");
+  let currentKey = null;
+  let selectedOption = null;
+
+  function updateProgress() {
+    progress.textContent = `TASKS SOLVED: ${solved.size} / 10`;
+    document.querySelectorAll("[data-key]").forEach(btn => {
+      if (solved.has(btn.dataset.key)) btn.classList.add("solved");
+    });
+    display.textContent = solved.size === 10 ? "OPEN" : `${solved.size} / 10`;
+  }
+
+ 
+function openTask(key) {
+  if (!tasks[key]) return;
+
+  currentKey = key;
+  selectedOption = null;
+
+  welcome.classList.add("hidden");
+  finalArea.classList.add("hidden");
+  taskArea.classList.remove("hidden");
+
+  const t = tasks[key];
+  let content = "";
+
+  if (t.type === "mc") {
+    content += `<p class="question">${t.question}</p><div class="answers">`;
+
+    t.options.forEach((opt, i) => {
+      content += `<button type="button" class="answer" data-option="${i}">${String.fromCharCode(65 + i)}. ${opt}</button>`;
+    });
+
+    content += `</div>`;
+  } else {
+    content += `<p class="question"><span>${t.before}</span> <input class="fill-input" id="fillAnswer" type="text" autocomplete="off" aria-label="Type the correct verb form" placeholder="verb form"> <span>${t.after}</span>${t.suffix ? `<span>${t.suffix}</span>` : ""}</p>
+      <p class="hint">Type the correct form of the verb.</p>`;
+  }
+
+  content += `<div class="actions"><button type="button" class="action" id="checkBtn">Check answer</button><button type="button" class="action secondary" id="closeBtn">Back to lock</button></div>
+    <p class="feedback" id="feedback" role="status"></p>`;
+
+  taskArea.innerHTML = content;
+
+  taskArea.querySelectorAll("[data-option]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedOption = Number(btn.dataset.option);
+
+      taskArea.querySelectorAll("[data-option]").forEach(option => {
+        option.classList.remove("selected", "wrong", "correct");
+      });
+
+      btn.classList.add("selected");
+
+      const feedback = document.getElementById("feedback");
+      feedback.className = "feedback";
+      feedback.textContent = "";
+    });
+  });
+
+  document.getElementById("checkBtn").addEventListener("click", checkAnswer);
+  document.getElementById("closeBtn").addEventListener("click", backToLock);
+
+  const input = document.getElementById("fillAnswer");
+
+  if (input) {
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") checkAnswer();
+    });
+  }
+}
+
+  function checkAnswer() {
+  const t = tasks[currentKey];
+  const feedback = document.getElementById("feedback");
+  let correct = false;
+
+  if (t.type === "mc") {
+    if (selectedOption === null) {
+      feedback.className = "feedback bad";
+      feedback.textContent = "Choose an answer first!";
+      return;
+    }
+
+    correct = selectedOption === t.answer;
+
+    taskArea.querySelectorAll("[data-option]").forEach(btn => {
+      btn.classList.remove("correct", "wrong");
+    });
+
+    if (!correct) {
+      const selectedBtn = taskArea.querySelector(
+        `[data-option="${selectedOption}"]`
+      );
+
+      if (selectedBtn) {
+        selectedBtn.classList.add("wrong");
+      }
+    }
+  } else {
+    const input = document.getElementById("fillAnswer");
+    const value = input.value.trim().toLowerCase()
+      .replace(/[.!?]+$/g, "")
+      .replace(/\s+/g, " ");
+
+    if (!value) {
+      feedback.className = "feedback bad";
+      feedback.textContent = "Type your answer first!";
+      input.focus();
+      return;
+    }
+
+    correct = t.answer.some(a => a.toLowerCase() === value);
+    input.style.borderColor = correct ? "" : "#ff8c8c";
+  }
+
+  if (correct) {
+    solved.add(currentKey);
+
+    feedback.className = "feedback good";
+    feedback.textContent = `Correct! ${t.explain}`;
+
+    updateProgress();
+
+    document.getElementById("checkBtn").textContent = "Correct ✓";
+    document.getElementById("checkBtn").disabled = true;
+
+    taskArea.querySelectorAll("[data-option]").forEach(btn => {
+      btn.disabled = true;
+    });
+
+    if (solved.size === 10) {
+      setTimeout(showFinal, 900);
+    }
+  } else {
+    feedback.className = "feedback bad";
+    feedback.textContent = `Not quite. Try again! Hint: ${t.explain}`;
+  }
+}
+  function backToLock() {
+    taskArea.classList.add("hidden");
+    welcome.classList.remove("hidden");
+    currentKey = null;
+  }
+
+  function showFinal() {
+    taskArea.classList.add("hidden");
+    welcome.classList.add("hidden");
+    finalArea.classList.remove("hidden");
+    display.textContent = "OPEN";
+  }
+
+  keypad.addEventListener("click", e => {
+    const btn = e.target.closest("[data-key]");
+    if (!btn) return;
+    const key = btn.dataset.key;
+    if (key === "back") {
+      display.textContent = "----";
+      backToLock();
+    } else if (key === "enter") {
+      if (solved.size === 10) showFinal();
+      else {
+        welcome.classList.add("hidden");
+        finalArea.classList.add("hidden");
+        taskArea.classList.remove("hidden");
+        taskArea.innerHTML = `<div class="eyebrow">Lock status</div><h2>Not unlocked yet!</h2><p>You have solved ${solved.size} out of 10 tasks. Choose the numbered buttons and complete the remaining grammar challenges.</p><div class="actions"><button class="action secondary" id="returnBtn">Back to lock</button></div>`;
+        document.getElementById("returnBtn").addEventListener("click", backToLock);
+      }
+    } else openTask(key);
+  });
+
+  document.getElementById("reviewBtn").addEventListener("click", () => {
+    const firstKey = Object.keys(tasks).find(key => solved.has(key)) || "1";
+    openTask(firstKey);
+  });
+  updateProgress();
+})();
+</script>
+</body>
+</html>
